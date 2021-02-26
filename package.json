@@ -1,0 +1,26 @@
+{
+	"name": "@kloak-it/kloak-network",
+	"version": "0.0.3",
+	"license": "MIT",
+	"description": "Kloak platform network module",
+	"scripts": {},
+	"devDependencies": {
+		"@types/express": "^4.17.11",
+		"@types/node": "^14.14.31"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/CoNET-project/kloak-network.git"
+	},
+	"author": "Kloak Information Technologies Inc. <info@kloak.app>",
+	"bugs": {
+		"url": "https://github.com/CoNET-project/kloak-network/issues"
+	},
+	"homepage": "https://www.kloak.app",
+	"dependencies": {
+		"express": "^4.17.1"
+	},
+	"main": "src/index.js",
+	"snyk": true
+	
+}
