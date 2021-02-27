@@ -1,9 +1,9 @@
 # Kloak Platform / Kloakプラットフォーム / Kloak平台
 > This is the time give power back to user from BigTech.
 
-[![Build Status](https://travis-ci.org/KloakIT/Kloak_platform.svg?branch=master)](https://travis-ci.org/github/KloakIT/Kloak_platform)
-[![npm version](https://badge.fury.io/js/kloak_platform.svg)](https://badge.fury.io/js/kloak_platform)
-[![Known Vulnerabilities](https://snyk.io/test/github/KloakIT/Kloak_platform/badge.svg)](https://snyk.io/test/github/KloakIT/Kloak_platform)
+[![Build Status](https://travis-ci.org/CoNET-project/kloak-network.svg?branch=master)](https://travis-ci.org/github/CoNET-project/kloak-network)
+[![GitHub version](https://badge.fury.io/gh/CoNET-project%2Fkloak-network.svg)](https://badge.fury.io/gh/CoNET-project%2Fkloak-network)
+[![Known Vulnerabilities](https://snyk.io/test/github/CoNET-project/kloak-network/badge.svg?targetFile=package.json)](https://snyk.io/test/github/CoNET-project/kloak-network?targetFile=package.json)
 [![Telegram](https://img.shields.io/badge/telebot-community%20group-blue.svg)](https://t.me/joinchat/IpX64hGK_95XDTXit42vOg)
 [![Gitter](https://img.shields.io/badge/chat-on%20gitter-blue.svg)](https://gitter.im/QTGate/Lobby)
 
