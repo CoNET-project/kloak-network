@@ -1,15 +1,12 @@
 import * as Express from 'express'
-import * as Http from 'http'
+
 import { join } from 'path'
 import * as Imap from './imap'
 
 export default class localServer {
 	private expressServer = Express ()
-	private httpServer = Http.createServer ( this.expressServer )
 	constructor ( portNumber: number ) {
-	
 		Express.static.mime.define ({ 'application/x-mimearchive' : ['mhtml','mht'] })
-		this.expressServer.set ( 'views', join ( __dirname, 'views' ))
 		this.expressServer.use ( '/', Express.static ( join ( __dirname, `../public` )))
 		this.expressServer.use ( `/assets`, Express.static ( join ( __dirname, `../assets` )))
 		
@@ -21,7 +18,7 @@ export default class localServer {
 		})
 		/** */
 
-		this.httpServer.once ( 'error', err => {
+		this.expressServer.once ( 'error', err => {
 			console.log ( `httpServer error`, err )
 			return process.exit (1)
 		})
@@ -56,7 +53,7 @@ export default class localServer {
 			
 		})
 		
-		this.httpServer.listen ( portNumber, () => {
+		this.expressServer.listen ( portNumber, () => {
 			console.table ([{ 'Kloak start up at': `localhost:${ portNumber }`}])
 		})
 	}

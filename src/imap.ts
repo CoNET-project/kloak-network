@@ -19,10 +19,9 @@ import * as Net from 'net'
 import * as Tls from 'tls'
 import * as Stream from 'stream'
 import * as Event from 'events'
-import * as Uuid from 'node-uuid'
+import * as Uuid from 'uuid'
 import * as Async from 'async'
 import * as Crypto from 'crypto'
-import { setTimeout, clearTimeout } from 'timers';
 import { Buffer } from 'buffer'
 import * as Util from 'util'
 
@@ -1140,11 +1139,8 @@ export class qtGateImap extends Event.EventEmitter {
     
     private port: number = typeof this.IMapConnect.imapPortNumber === 'object' ? this.IMapConnect.imapPortNumber[0]: this.IMapConnect.imapPortNumber
     public TagCount1 () {
-        if ( ++ this.tagcount < MAX_INT )
-            return this.tagcount
-        return this.tagcount = 0
+		return ++ this.tagcount
     }
-    private connectTimeOut = null
 
     private connect () {
         const _connect = () => {

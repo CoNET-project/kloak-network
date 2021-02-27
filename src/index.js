@@ -1,18 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const Express = require("express");
-const Http = require("http");
 const path_1 = require("path");
 const Imap = require("./imap");
-const testImap = (imapAccount, imapPassword, imapServer, port, CallBack) => {
-    Imap.imapAccountTest();
-};
 class localServer {
     constructor(portNumber) {
         this.expressServer = Express();
-        this.httpServer = Http.createServer(this.expressServer);
         Express.static.mime.define({ 'application/x-mimearchive': ['mhtml', 'mht'] });
-        this.expressServer.set('views', path_1.join(__dirname, 'views'));
         this.expressServer.use('/', Express.static(path_1.join(__dirname, `../public`)));
         this.expressServer.use(`/assets`, Express.static(path_1.join(__dirname, `../assets`)));
         /**
@@ -22,7 +16,7 @@ class localServer {
             res.end (`Cannot GET ${ req.url }\n__dirname = ${ __dirname }`)
         })
         /** */
-        this.httpServer.once('error', err => {
+        this.expressServer.once('error', err => {
             console.log(`httpServer error`, err);
             return process.exit(1);
         });
@@ -40,7 +34,7 @@ class localServer {
          * 			408 	IMAP server can not connected Timeout
          *
          */
-        this.expressServer.post('testImapSetup', (req, res) => {
+        this.expressServer.post('testImap', (req, res) => {
             const body = req.body;
             if (!body.imapServer || !body.imapUserName || !body.imapUserPassword || !body.imapPortNumber) {
                 res.sendStatus(400);
@@ -54,7 +48,7 @@ class localServer {
                 return res.end();
             });
         });
-        this.httpServer.listen(portNumber, () => {
+        this.expressServer.listen(portNumber, () => {
             console.table([{ 'Kloak start up at': `localhost:${portNumber}` }]);
         });
     }

@@ -19,10 +19,9 @@ exports.imapPeer = exports.imapGetMediaFile = exports.imapAccountTest = exports.
 const Tls = require("tls");
 const Stream = require("stream");
 const Event = require("events");
-const Uuid = require("node-uuid");
+const Uuid = require("uuid");
 const Async = require("async");
 const Crypto = require("crypto");
-const timers_1 = require("timers");
 const buffer_1 = require("buffer");
 const Util = require("util");
 const MAX_INT = 9007199254740992;
@@ -76,7 +75,7 @@ class ImapServerSwitchStream extends Stream.Transform {
             return; //console.dir (`idleDoingDown stop because this.doingIdle === false!`)
         }
         this.doingIdle = false;
-        timers_1.clearTimeout(this.idleNextStop);
+        clearTimeout(this.idleNextStop);
         if (this.writable) {
             this.debug ? debugOut(`DONE`, false, this.imapServer.listenFolder || this.imapServer.imapSerialID) : null;
             console.log('');
@@ -111,8 +110,8 @@ class ImapServerSwitchStream extends Stream.Transform {
                 case 'N': //  NOOP
                 case 'O': //	OK
                 case 'A': { /////       A
-                    timers_1.clearTimeout(this.appendWaitResponsrTimeOut);
-                    timers_1.clearTimeout(this.idleResponsrTime);
+                    clearTimeout(this.appendWaitResponsrTimeOut);
+                    clearTimeout(this.idleResponsrTime);
                     this.runningCommand = false;
                     if (/^ok$/i.test(cmdArray[1]) || /^ok$/i.test(cmdArray[0])) {
                         this.doCommandCallback(null, commandLine);
@@ -380,7 +379,7 @@ class ImapServerSwitchStream extends Stream.Transform {
             /**
              * NOOP support
              */
-            timers_1.setTimeout(() => {
+            setTimeout(() => {
                 if (!this.runningCommand) {
                     return this.idleNoop();
                 }
@@ -392,7 +391,7 @@ class ImapServerSwitchStream extends Stream.Transform {
                 case `${this.Tag}*`:
                 case '+':
                 case '*': {
-                    timers_1.clearTimeout(this.idleResponsrTime);
+                    clearTimeout(this.idleResponsrTime);
                     if (/^RECENT$|^EXISTS$/i.test(cmdArray[2])) {
                         this.newSwitchRet = true;
                         if (this.imapServer.idleSupport) {
@@ -410,7 +409,7 @@ class ImapServerSwitchStream extends Stream.Transform {
         this.debug ? debugOut(this.cmd, false, this.imapServer.listenFolder || this.imapServer.imapSerialID) : null;
         if (this.writable) {
             this.idleNextStop = this.imapServer.idleSupport
-                ? timers_1.setTimeout(() => {
+                ? setTimeout(() => {
                     this.idleDoingDown();
                 }, idleInterval)
                 : null;
@@ -568,7 +567,7 @@ class ImapServerSwitchStream extends Stream.Transform {
         this.doCommandCallback = (err, info) => {
             return CallBack(err);
         };
-        timers_1.clearTimeout(this.idleResponsrTime);
+        clearTimeout(this.idleResponsrTime);
         this.commandProcess = (text, cmdArray, next, _callback) => {
             //console.log (`_logout doing this.commandProcess `)
             this.isImapUserLoginSuccess = false;
@@ -578,7 +577,7 @@ class ImapServerSwitchStream extends Stream.Transform {
         this.cmd = `${this.Tag} LOGOUT`;
         this.debug ? debugOut(this.cmd, false, this.imapServer.listenFolder || this.imapServer.imapSerialID) : null;
         if (this.writable) {
-            this.appendWaitResponsrTimeOut = timers_1.setTimeout(() => {
+            this.appendWaitResponsrTimeOut = setTimeout(() => {
                 return CallBack();
             }, 1000 * 30);
             return this.push(this.cmd + '\r\n');
@@ -632,7 +631,7 @@ class ImapServerSwitchStream extends Stream.Transform {
             return this.imapServer.socket.end();
         }
         this.push(this.cmd + '\r\n');
-        this.appendWaitResponsrTimeOut = timers_1.setTimeout(() => {
+        this.appendWaitResponsrTimeOut = setTimeout(() => {
             return this.doCommandCallback(new Error(`IMAP append TIMEOUT`));
         }, time);
         //console.log (`*************************************  append time = [${ time }] `)
@@ -648,7 +647,7 @@ class ImapServerSwitchStream extends Stream.Transform {
         console.log(`appendStreamV4 Base64Data = [${Base64Data}]`);
         this.doCommandCallback = (err, response) => {
             //this.debug ? saveLog (`appendStreamV2 doing this.doCommandCallback`) : null
-            timers_1.clearTimeout(this.appendWaitResponsrTimeOut);
+            clearTimeout(this.appendWaitResponsrTimeOut);
             if (err) {
                 if (/TRYCREATE/i.test(err.message)) {
                     return this.createBox(false, this.imapServer.writeFolder, err1 => {
@@ -696,7 +695,7 @@ class ImapServerSwitchStream extends Stream.Transform {
             return this.doCommandCallback(new Error('! imap.writable '));
         }
         this.push(this.cmd + '\r\n');
-        this.appendWaitResponsrTimeOut = timers_1.setTimeout(() => {
+        this.appendWaitResponsrTimeOut = setTimeout(() => {
             return this.doCommandCallback(new Error('appendStreamV3 mail serrver write timeout!'));
         }, _time);
         //console.log (`*************************************  append time = [${ time }] `)
@@ -776,7 +775,7 @@ class ImapServerSwitchStream extends Stream.Transform {
         this.Tag = `A${this.imapServer.TagCount1()}`;
         this.cmd = `${this.Tag} ${this.cmd}`;
         this.debug ? debugOut(this.cmd, false, this.imapServer.listenFolder || this.imapServer.imapSerialID) : null;
-        this.appendWaitResponsrTimeOut = timers_1.setTimeout(() => {
+        this.appendWaitResponsrTimeOut = setTimeout(() => {
             //this.imapServer.emit ( 'error', new Error (`${ this.cmd } timeout!`))
             return this.doCommandCallback(new Error(`${this.cmd} timeout!`));
         }, this.imapServer.fetching + 1000 * 120);
@@ -923,7 +922,6 @@ class qtGateImap extends Event.EventEmitter {
         this.imapEnd = false;
         this.imapSerialID = Crypto.createHash('md5').update(JSON.stringify(this.IMapConnect)).digest('hex').toUpperCase();
         this.port = typeof this.IMapConnect.imapPortNumber === 'object' ? this.IMapConnect.imapPortNumber[0] : this.IMapConnect.imapPortNumber;
-        this.connectTimeOut = null;
         this.connect();
         this.once(`error`, err => {
             debug ? exports.saveLog(`[${this.imapSerialID}] this.on error ${err && err.message ? err.message : null}`) : null;
@@ -932,13 +930,11 @@ class qtGateImap extends Event.EventEmitter {
         });
     }
     TagCount1() {
-        if (++this.tagcount < MAX_INT)
-            return this.tagcount;
-        return this.tagcount = 0;
+        return ++this.tagcount;
     }
     connect() {
         const _connect = () => {
-            timers_1.clearTimeout(timeout);
+            clearTimeout(timeout);
             console.log(Util.inspect({ ConnectTo_Imap_Server: true, servername: this.IMapConnect.imapServer, IPaddress: this.socket.remoteAddress }, false, 2, true));
             this.socket.setKeepAlive(true);
             this.socket.pipe(this.imapStream).pipe(this.socket).once('error', err => {
@@ -948,7 +944,7 @@ class qtGateImap extends Event.EventEmitter {
             });
         };
         //console.log ( `qtGateImap connect mail server [${ this.IMapConnect.imapServer }: ${ this.port }] setTimeout [${ connectTimeOut /1000 }] !`)
-        const timeout = timers_1.setTimeout(() => {
+        const timeout = setTimeout(() => {
             return this.socket.destroy(new Error('connect time out!'));
         }, connectTimeOut);
         this.socket = Tls.connect({ host: this.IMapConnect.imapServer, port: this.port }, _connect);
@@ -1070,7 +1066,7 @@ const imapAccountTest = (IMapConnect, CallBack) => {
         if (!callbackCall) {
             exports.saveLog(`imapAccountTest doing callback err [${err && err.message ? err.message : `undefine `}] ret [${ret ? ret : 'undefine'}]`);
             callbackCall = true;
-            timers_1.clearTimeout(timeout);
+            clearTimeout(timeout);
             return CallBack(err, ret);
         }
     };
@@ -1141,8 +1137,8 @@ class imapPeer extends Event.EventEmitter {
         }
     }
     checklastAccessTime() {
-        timers_1.clearTimeout(this.checkSocketConnectTime);
-        return this.checkSocketConnectTime = timers_1.setTimeout(() => {
+        clearTimeout(this.checkSocketConnectTime);
+        return this.checkSocketConnectTime = setTimeout(() => {
             return this.restart_rImap();
         }, resetConnectTimeLength);
     }
@@ -1158,7 +1154,7 @@ class imapPeer extends Event.EventEmitter {
             this.pingUuid = null;
             this.connected = true;
             this.pinging = false;
-            timers_1.clearTimeout(this.waitingReplyTimeOut);
+            clearTimeout(this.waitingReplyTimeOut);
             return this.emit('CoNETConnected', attr);
         }
         if (subject) {
@@ -1203,10 +1199,10 @@ class imapPeer extends Event.EventEmitter {
     }
     setTimeOutOfPing(sendMail) {
         console.trace(`setTimeOutOfPing [${this.pingUuid}]`);
-        timers_1.clearTimeout(this.waitingReplyTimeOut);
-        timers_1.clearTimeout(this.needPingTimeOut);
+        clearTimeout(this.waitingReplyTimeOut);
+        clearTimeout(this.needPingTimeOut);
         debug ? exports.saveLog(`Make Time Out for a Ping, ping ID = [${this.pingUuid}]`, true) : null;
-        return this.waitingReplyTimeOut = timers_1.setTimeout(() => {
+        return this.waitingReplyTimeOut = setTimeout(() => {
             debug ? exports.saveLog(`ON setTimeOutOfPing this.emit ( 'pingTimeOut' ) pingID = [${this.pingUuid}] `, true) : null;
             this.pingUuid = null;
             this.connected = false;
@@ -1262,7 +1258,7 @@ class imapPeer extends Event.EventEmitter {
             this.rImap.removeAllListeners();
             this.rImap = null;
             this.makeRImap = false;
-            timers_1.clearTimeout(this.waitingReplyTimeOut);
+            clearTimeout(this.waitingReplyTimeOut);
             if (this.rImap_restart) {
                 console.dir(`rImap.on ( 'end' ) this.rImap_restart = TRUE`, err);
             }
@@ -1275,9 +1271,9 @@ class imapPeer extends Event.EventEmitter {
         });
     }
     destroy(err) {
-        timers_1.clearTimeout(this.waitingReplyTimeOut);
-        timers_1.clearTimeout(this.needPingTimeOut);
-        timers_1.clearTimeout(this.checkSocketConnectTime);
+        clearTimeout(this.waitingReplyTimeOut);
+        clearTimeout(this.needPingTimeOut);
+        clearTimeout(this.checkSocketConnectTime);
         console.log(`destroy IMAP!`);
         console.trace();
         if (this.doingDestroy) {

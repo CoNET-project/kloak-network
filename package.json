@@ -18,9 +18,10 @@
 	},
 	"homepage": "https://www.kloak.app",
 	"dependencies": {
-		"express": "^4.17.1"
+		"async": "^3.2.0",
+		"express": "^4.17.1",
+		"uuid": "^8.3.2"
 	},
 	"main": "src/index.js",
 	"snyk": true
-	
 }
